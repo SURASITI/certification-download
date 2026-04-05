@@ -64,11 +64,44 @@
      * สำคัญ: ชื่อไฟล์ในช่อง 'file' ต้องลงท้ายด้วย .pdf และตรงกับไฟล์จริงในโฟลเดอร์ pdfs/
      */
     const certificateData = [
+       // ตรวจสอบชื่อไฟล์ให้ตรงกับที่อยู่ในโฟลเดอร์ pdfs จริงๆ
+    const certificateData = [
         { "name": "king", "file": "king-certificate.pdf" },
-        { "name": "สมชาย ใจดี", "file": "somchai.pdf" },
         { "name": "สมหญิง รักเรียน", "file": "Somying-Rakrien.pdf" },
         { "name": "กมลวรรณ สดใส", "file": "Kamonwan-Sodsai.pdf" }
-        // เพิ่มรายชื่อใหม่ที่นี่...
+    ];
+
+    function handleSearch() {
+        const input = document.getElementById('searchInput').value.trim().toLowerCase();
+        const list = document.getElementById('resultsList');
+        list.innerHTML = '';
+
+        if (input === '') {
+            list.style.display = 'none';
+            return;
+        }
+
+        const filtered = certificateData.filter(item => 
+            item.name.toLowerCase().includes(input)
+        );
+
+        if (filtered.length > 0) {
+            list.style.display = 'block';
+            filtered.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'result-item';
+                // จุดตายคือบรรทัดนี้: ต้องมี pdfs/ นำหน้า และตามด้วยชื่อไฟล์ที่ลงท้ายด้วย .pdf
+                li.innerHTML = `
+                    <span class="name-info">${item.name}</span>
+                    <a href="pdfs/${item.file}" class="btn-download" target="_blank" download>ดาวน์โหลด PDF</a>
+                `;
+                list.appendChild(li);
+            });
+        } else {
+            list.style.display = 'block';
+            list.innerHTML = '<div class="no-result">ไม่พบรายชื่อในระบบ</div>';
+        }
+    }
     ];
 
     function handleSearch() {

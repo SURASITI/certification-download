@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบค้นหาเกียรติบัตรออนไลน์</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&family=Mitr&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #1a73e8;
+            --success-color: #28a745;
+            --bg-color: #f8fafc;
+            --text-color: #1e293b;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-color);
+        }
+
+        .search-card {
+            width: 90%;
+            max-width: 550px;
+            background: white;
+            padding: 40px 30px;
+            border-radius: 24px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        h1 {
+            font-family: 'Mitr', sans-serif;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            font-size: 26px;
+        }
+
+        .sub-text {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 16px 25px;
+            font-size: 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 50px;
+            outline: none;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.1);
+        }
+
+        /* ส่วนแสดงรายการที่ค้นหาพบ */
+        #resultsList {
+            list-style: none;
+            padding: 0;
+            margin: 15px 0 0 0;
+            max-height: 350px;
+            overflow-y: auto;
+            border-radius: 16px;
+            background: #fff;
+            display: none; /* เริ่มต้นซ่อนไว้ */
+            border: 1px solid #f1f5f9;
+        }
+
+        .result-item {
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f1f5f9;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-item:hover {
+            background-color: #f8fafc;
+        }
+
+        .name-label {
+            font-weight: 500;
+            color: #334155;
+            text-align: left;
+            flex: 1;
+        }
+
+        .download-btn {
+            background-color: var(--success-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+
+        .download-btn:hover {
+            background-color: #166534;
+            transform: translateY(-1px);
+        }
+
+        .not-found {
+            padding: 30px;
+            color: #94a3b8;
+            font-size: 15px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        footer {
+            margin-top: 40px;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+
+<div class="search-card">
+    <h1>ตรวจสอบรายชื่อรับเกียรติบัตร</h1>
+    <p class="sub-text">กรุณาพิมพ์ชื่อ-นามสกุลของคุณเพื่อค้นหาและดาวน์โหลด</p>
+    
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="ตัวอย่าง: สมชาย ใจดี" oninput="handleSearch()">
+        <ul id="resultsList"></ul>
+    </div>
+
+    <footer>
+        &copy; 2026 ระบบค้นหาเกียรติบัตรออนไลน์อัตโนมัติ
+    </footer>
+</div>
+
+<script>
+    /**
+     * คัดลอกรายชื่อมาใส่ตรงนี้ได้เลยครับ
+     * { "name": "ชื่อที่พิมพ์หา", "file": "ชื่อไฟล์ในโฟลเดอร์ pdfs" }
+     */
+    const certificateData = [
+        { "name": "สมชาย ใจดี", "file": "Somchai-Jaidee.pdf" },
+        { "name": "สมหญิง รักเรียน", "file": "Somying-Rakrien.pdf" },
+        { "name": "กมลวรรณ สดใส", "file": "Kamonwan-Sodsai.pdf" },
+        { "name": "วิชัย กล้าหาญ", "file": "Wichai-Klahan.pdf" },
+        { "name": "king", "file": "king-certificate.pdf" }
+        // เพิ่มรายชื่อใหม่ที่นี่...
+    ];
+
+    function handleSearch() {
+        const input = document.getElementById('searchInput').value.trim().toLowerCase();
+        const list = document.getElementById('resultsList');
+        
+        // ล้างค่าเก่า
+        list.innerHTML = '';
+
+        // ถ้าช่องค้นหาว่าง ให้ซ่อนรายการ
+        if (input === '') {
+            list.style.display = 'none';
+            return;
+        }
+
+        // ค้นหารายชื่อที่ใกล้เคียง
+        const filtered = certificateData.filter(item => 
+            item.name.toLowerCase().includes(input)
+        );
+
+        if (filtered.length > 0) {
+            list.style.display = 'block';
+            filtered.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'result-item';
+                li.innerHTML = `
+                    <span class="name-label">${item.name}</span>
+                    <a href="pdfs/${item.file}" class="download-btn" target="_blank" download>ดาวน์โหลด PDF</a>
+                `;
+                list.appendChild(li);
+            });
+        } else {
+            list.style.display = 'block';
+            list.innerHTML = '<div class="not-found">ไม่พบรายชื่อที่ค้นหาในระบบ</div>';
+        }
+    }
+</script>
+
+</body>
+</html>

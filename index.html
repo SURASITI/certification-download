@@ -3,76 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบค้นหาเกียรติบัตร</title>
+    <title>ระบบค้นหาเกียรติบัตรออนไลน์</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&family=Mitr&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #1a73e8; --success: #28a745; --text: #333; }
-        body { font-family: 'Sarabun', sans-serif; background-color: #f0f2f5; margin: 0; display: flex; justify-content: center; padding-top: 50px; }
-        .card { width: 90%; max-width: 500px; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center; }
-        h1 { font-family: 'Mitr', sans-serif; color: var(--primary); font-size: 24px; margin-bottom: 20px; }
-        input[type="text"] { width: 100%; padding: 15px 20px; font-size: 16px; border: 2px solid #ddd; border-radius: 50px; outline: none; box-sizing: border-box; transition: 0.3s; }
-        input[type="text"]:focus { border-color: var(--primary); }
+        :root { --primary: #1a73e8; --success: #28a745; --bg: #f8fafc; }
+        body { font-family: 'Sarabun', sans-serif; background-color: var(--bg); margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { width: 90%; max-width: 550px; background: white; padding: 40px 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); text-align: center; }
+        h1 { font-family: 'Mitr', sans-serif; color: var(--primary); margin-bottom: 10px; font-size: 26px; }
+        .sub-text { color: #64748b; font-size: 14px; margin-bottom: 30px; }
         
-        /* ส่วนรายการผลลัพธ์ */
-        #resultsList { list-style: none; padding: 0; margin: 20px 0 0 0; text-align: left; }
+        .search-box { position: relative; }
+        input[type="text"] { 
+            width: 100%; padding: 16px 25px; font-size: 17px; border: 2px solid #e2e8f0; 
+            border-radius: 50px; outline: none; transition: 0.3s; box-sizing: border-box; 
+        }
+        input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.1); }
+
+        #resultsList { 
+            list-style: none; padding: 0; margin: 20px 0 0 0; 
+            max-height: 400px; overflow-y: auto; display: none; 
+        }
         .result-item { 
             display: flex; justify-content: space-between; align-items: center; 
-            padding: 15px; border: 1px solid #eee; border-radius: 12px; margin-bottom: 10px;
-            background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            padding: 18px 20px; border: 1px solid #f1f5f9; border-radius: 15px; 
+            background: #fff; margin-bottom: 10px; transition: 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
-        .name-text { font-weight: bold; color: var(--text); font-size: 16px; flex: 1; }
-        .btn-dl { 
-            background: var(--success); color: white; padding: 8px 15px; 
-            border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: bold;
-            transition: 0.3s; margin-left: 10px;
+        .result-item:hover { border-color: var(--primary); background: #f8faff; }
+        
+        .name-info { text-align: left; font-weight: 700; color: #334155; font-size: 16px; }
+        
+        .btn-download { 
+            background-color: var(--success); color: white; padding: 10px 20px; 
+            border-radius: 10px; text-decoration: none; font-size: 14px; 
+            font-weight: bold; transition: 0.2s; 
         }
-        .btn-dl:hover { background: #218838; }
-        .no-data { padding: 20px; color: #888; font-size: 14px; }
+        .btn-download:hover { background-color: #166534; transform: translateY(-1px); }
+        
+        .no-result { padding: 30px; color: #94a3b8; font-size: 15px; }
+        footer { margin-top: 40px; font-size: 12px; color: #cbd5e1; }
     </style>
 </head>
 <body>
 
-<div class="card">
+<div class="container">
     <h1>ตรวจสอบรายชื่อรับเกียรติบัตร</h1>
-    <input type="text" id="searchInp" placeholder="พิมพ์ชื่อ-นามสกุล เพื่อค้นหา..." oninput="startSearch()">
+    <p class="sub-text">กรุณาพิมพ์ชื่อของคุณเพื่อค้นหาไฟล์ PDF</p>
     
-    <ul id="resultsList"></ul>
-    
-    <p style="font-size: 11px; color: #bbb; margin-top: 30px;">© 2026 ระบบออกเกียรติบัตรอัตโนมัติ</p>
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="พิมพ์ชื่อเพื่อค้นหา..." oninput="handleSearch()">
+        <ul id="resultsList"></ul>
+    </div>
+
+    <footer>&copy; 2026 ระบบค้นหาเกียรติบัตรอัตโนมัติ</footer>
 </div>
 
 <script>
-    // --- 1. ใส่รายชื่อของคุณที่นี่ ---
-    // รูปแบบคือ { "n": "ชื่อที่แสดง", "f": "ชื่อไฟล์ในโฟลเดอร์ pdfs" }
-    const data = [
-        { "n": "สมหญิง รักเรียน", "f": "somying.pdf" },
-        { "n": "กมลวรรณ สดใส", "f": "kamonwan.pdf" },
-        { "n": "สมชาย ใจดี", "f": "somchai.pdf" },
-        { "n": "king", "f": "king-certificate.pdf" }
-        // เพิ่มรายชื่ออื่นๆ ต่อท้ายได้เลยครับ อย่าลืมใส่เครื่องหมาย , ปิดท้ายบรรทัดก่อนหน้า
+    /**
+     * รายชื่อข้อมูล (DATABASE)
+     * สำคัญ: ชื่อไฟล์ในช่อง 'file' ต้องลงท้ายด้วย .pdf และตรงกับไฟล์จริงในโฟลเดอร์ pdfs/
+     */
+    const certificateData = [
+        { "name": "king", "file": "king-certificate.pdf" },
+        { "name": "สมชาย ใจดี", "file": "somchai.pdf" },
+        { "name": "สมหญิง รักเรียน", "file": "Somying-Rakrien.pdf" },
+        { "name": "กมลวรรณ สดใส", "file": "Kamonwan-Sodsai.pdf" }
+        // เพิ่มรายชื่อใหม่ที่นี่...
     ];
 
-    function startSearch() {
-        const query = document.getElementById('searchInp').value.trim().toLowerCase();
+    function handleSearch() {
+        const input = document.getElementById('searchInput').value.trim().toLowerCase();
         const list = document.getElementById('resultsList');
+        
         list.innerHTML = '';
 
-        if (query === '') return;
+        if (input === '') {
+            list.style.display = 'none';
+            return;
+        }
 
-        const filtered = data.filter(item => item.n.toLowerCase().includes(query));
+        const filtered = certificateData.filter(item => 
+            item.name.toLowerCase().includes(input)
+        );
 
         if (filtered.length > 0) {
+            list.style.display = 'block';
             filtered.forEach(item => {
                 const li = document.createElement('li');
                 li.className = 'result-item';
+                
+                // href="pdfs/${item.file}" คือการบอกให้ไปหาไฟล์ในโฟลเดอร์ pdfs
                 li.innerHTML = `
-                    <span class="name-text">${item.n}</span>
-                    <a href="pdfs/${item.f}" class="btn-dl" target="_blank" download>ดาวน์โหลด</a>
+                    <span class="name-info">${item.name}</span>
+                    <a href="pdfs/${item.file}" class="btn-download" target="_blank" download>ดาวน์โหลด PDF</a>
                 `;
                 list.appendChild(li);
             });
         } else {
-            list.innerHTML = '<div class="no-data">ไม่พบรายชื่อที่ค้นหา</div>';
+            list.style.display = 'block';
+            list.innerHTML = '<div class="no-result">ไม่พบรายชื่อในระบบ</div>';
         }
     }
 </script>

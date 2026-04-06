@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบค้นหาเกียรติบัตรออนไลน์</title>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&family=Mitr&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=Mitr:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #1a73e8;
-            --success: #28a745;
-            --bg: #f8fafc;
+            --primary: #2563eb;
+            --success: #16a34a;
+            --bg: #f0f4f8;
+            --card: #ffffff;
             --text: #1e293b;
             --border: #e2e8f0;
         }
@@ -26,33 +27,22 @@
         .container {
             width: 100%;
             max-width: 520px;
-            background: white;
+            background: var(--card);
             border-radius: 24px;
             padding: 40px 30px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
             text-align: center;
         }
-        .logo {
-            font-size: 48px;
-            margin-bottom: 10px;
-        }
+        .logo { font-size: 48px; margin-bottom: 10px; }
         h1 {
             font-family: 'Mitr', sans-serif;
             color: var(--primary);
-            font-size: 24px;
+            font-size: 26px;
             margin-bottom: 8px;
         }
-        .subtitle {
-            color: #64748b;
-            font-size: 14px;
-            margin-bottom: 25px;
-        }
+        .subtitle { color: #64748b; font-size: 14px; margin-bottom: 25px; }
         
-        /* Search Input */
-        .search-box {
-            position: relative;
-            margin-bottom: 15px;
-        }
+        .search-box { position: relative; margin-bottom: 15px; }
         #searchInput {
             width: 100%;
             padding: 16px 25px;
@@ -65,11 +55,10 @@
         }
         #searchInput:focus {
             border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.15);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
         }
         #searchInput::placeholder { color: #94a3b8; }
         
-        /* Results List */
         #resultsList {
             list-style: none;
             text-align: left;
@@ -99,7 +88,7 @@
         }
         .result-item:hover {
             border-color: var(--primary);
-            box-shadow: 0 4px 12px rgba(26, 115, 232, 0.1);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
             transform: translateY(-2px);
         }
         .name-text {
@@ -123,25 +112,9 @@
             border: none;
             cursor: pointer;
         }
-        .download-btn:hover {
-            background: #1e7e34;
-            transform: scale(1.03);
-        }
-        .no-result {
-            padding: 25px;
-            color: #94a3b8;
-            font-size: 14px;
-            text-align: center;
-        }
+        .download-btn:hover { background: #15803d; transform: scale(1.03); }
+        .no-result { padding: 25px; color: #94a3b8; font-size: 14px; text-align: center; }
         
-        /* Footer */
-        footer {
-            margin-top: 35px;
-            font-size: 11px;
-            color: #cbd5e1;
-        }
-        
-        /* Status Badge */
         .status {
             display: inline-block;
             padding: 4px 12px;
@@ -152,11 +125,11 @@
             margin-top: 15px;
             font-weight: 500;
         }
+        footer { margin-top: 35px; font-size: 11px; color: #94a3b8; }
         
-        /* Responsive */
         @media (max-width: 480px) {
             .container { padding: 30px 20px; }
-            h1 { font-size: 20px; }
+            h1 { font-size: 22px; }
             .result-item { flex-direction: column; align-items: flex-start; gap: 10px; }
             .download-btn { width: 100%; text-align: center; }
         }
@@ -170,40 +143,20 @@
     <p class="subtitle">พิมพ์ชื่อ-นามสกุลของคุณ เพื่อค้นหาและดาวน์โหลดไฟล์เกียรติบัตร</p>
     
     <div class="search-box">
-        <input 
-            type="text" 
-            id="searchInput" 
-            placeholder="🔍 พิมพ์ชื่อเพื่อค้นหา..." 
-            oninput="handleSearch()"
-            autocomplete="off"
-        >
+        <input type="text" id="searchInput" placeholder="🔍 พิมพ์ชื่อเพื่อค้นหา..." oninput="handleSearch()" autocomplete="off">
     </div>
     
     <span class="status">✅ ระบบพร้อมใช้งาน</span>
-    
     <ul id="resultsList"></ul>
     
-    <footer>
-        &copy; 2026 Certificate Search System • ใช้งานฟรีบน GitHub Pages
-    </footer>
+    <footer>&copy; 2026 Certificate Search System • ใช้งานฟรีบน GitHub Pages</footer>
 </div>
 
 <script>
     /**
      * 🗄️ ฐานข้อมูลรายชื่อเกียรติบัตร
-     * =================================
-     * วิธีเพิ่มรายชื่อใหม่:
-     * 1. อัปโหลดไฟล์ PDF เข้าโฟลเดอร์ /pdfs บน GitHub
-     * 2. เพิ่มบรรทัดใหม่ด้านล่างนี้ โดยแก้ "name" และ "file" ให้ตรงกับไฟล์จริง
-     * 3. กด Commit changes
-     * 
-     * ⚠️ ข้อควรระวัง:
-     * - ชื่อไฟล์ใน "file" ต้องลงท้ายด้วย .pdf เท่านั้น
-     * - ตัวพิมพ์เล็ก-ใหญ่ ต้องตรงกับไฟล์จริงบน GitHub เป๊ะๆ
-     * - ห้ามมีช่องว่างหรืออักขระพิเศษในชื่อไฟล์ (ใช้ - หรือ _ แทน)
-     */
-    const certificateData =     /**
-     * ฐานข้อมูลรายชื่อเกียรติบัตร (แก้ไขให้ตรงกับไฟล์จริงในโฟลเดอร์ pdfs แล้ว)
+     * ⚠️ สำคัญ: ชื่อในช่อง "file" ต้องตรงกับชื่อไฟล์จริงในโฟลเดอร์ pdfs/ เป๊ะๆ
+     *          (รวมตัวพิมพ์เล็ก-ใหญ่ และช่องว่าง)
      */
     const certificateData = [
         { "name": "BJ Manarea", "file": "BJ Manarea.pdf" },
@@ -215,51 +168,39 @@
         { "name": "Name", "file": "Name.pdf" },
         { "name": "Peter Ocdenaria", "file": "Peter Ocdenaria.pdf" },
         { "name": "Tito Pondoyo", "file": "Tito Pondoyo.pdf" }
+        // เพิ่มรายชื่อใหม่ที่นี่: { "name": "ชื่อแสดง", "file": "ชื่อไฟล์.pdf" },
     ];
-    /**
-     * 🔄 ฟังก์ชันค้นหาแบบเรียลไทม์
-     */
+
     function handleSearch() {
         const input = document.getElementById('searchInput').value.trim().toLowerCase();
         const resultsList = document.getElementById('resultsList');
-        
-        // ล้างผลลัพธ์เก่า
         resultsList.innerHTML = '';
         
-        // ถ้าช่องค้นหาว่าง -> ซ่อนรายการ
         if (input === '') {
             resultsList.style.display = 'none';
             return;
         }
 
-        // 🔍 ค้นหาชื่อที่ตรงกัน (รองรับภาษาไทย)
         const matched = certificateData.filter(item => 
             item.name.toLowerCase().includes(input)
         );
 
-        // แสดงผลลัพธ์
         if (matched.length > 0) {
             resultsList.style.display = 'block';
-            
             matched.forEach(item => {
                 const li = document.createElement('li');
                 li.className = 'result-item';
-                
-                // 🎯 สร้างลิงก์ดาวน์โหลด (สำคัญ: ต้องมี pdfs/ นำหน้า)
-                // ใช้ชื่อไฟล์ตรงๆ จากข้อมูล (GitHub Pages ใช้ relative path)
-                const pdfPath = `pdfs/${item.file}`;
-                
+                // ใช้ encodeURIComponent เพื่อจัดการช่องว่างในชื่อไฟล์อย่างปลอดภัย
+                const safeFile = encodeURIComponent(item.file);
                 li.innerHTML = `
                     <span class="name-text">${escapeHtml(item.name)}</span>
-                    <a href="${pdfPath}" class="download-btn" target="_blank" download>
+                    <a href="pdfs/${safeFile}" class="download-btn" target="_blank" download>
                         📥 ดาวน์โหลด PDF
                     </a>
                 `;
                 resultsList.appendChild(li);
             });
-            
         } else {
-            // ไม่พบผลลัพธ์
             resultsList.style.display = 'block';
             resultsList.innerHTML = `
                 <li class="no-result">
@@ -270,23 +211,11 @@
         }
     }
 
-    /**
-     * 🛡️ ฟังก์ชันป้องกัน XSS (ความปลอดภัย)
-     */
     function escapeHtml(text) {
-        const map = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#039;'
-        };
+        const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
         return text.replace(/[&<>"']/g, m => map[m]);
     }
 
-    /**
-     * 💡 ทิป: กด Enter เพื่อล้างช่องค้นหา
-     */
     document.getElementById('searchInput').addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             this.value = '';
@@ -295,13 +224,9 @@
         }
     });
 
-    /**
-     * 🪄 โหลดหน้าเว็บเสร็จ -> โฟกัสที่ช่องค้นหาอัตโนมัติ
-     */
     window.addEventListener('load', () => {
         document.getElementById('searchInput').focus();
-        console.log('✅ Certificate Search System Loaded');
-        console.log('📊 โหลดรายชื่อทั้งหมด:', certificateData.length, 'คน');
+        console.log('✅ Certificate System Loaded | Records:', certificateData.length);
     });
 </script>
 

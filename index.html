@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบค้นหาเกียรติบัตรออนไลน์</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&family=Mitr&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --success: #28a745;
+            --bg: #f8fafc;
+            --text: #1e293b;
+            --border: #e2e8f0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            width: 100%;
+            max-width: 520px;
+            background: white;
+            border-radius: 24px;
+            padding: 40px 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        .logo {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        h1 {
+            font-family: 'Mitr', sans-serif;
+            color: var(--primary);
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+        
+        /* Search Input */
+        .search-box {
+            position: relative;
+            margin-bottom: 15px;
+        }
+        #searchInput {
+            width: 100%;
+            padding: 16px 25px;
+            font-size: 16px;
+            border: 2px solid var(--border);
+            border-radius: 50px;
+            outline: none;
+            transition: all 0.3s ease;
+            font-family: 'Sarabun', sans-serif;
+        }
+        #searchInput:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.15);
+        }
+        #searchInput::placeholder { color: #94a3b8; }
+        
+        /* Results List */
+        #resultsList {
+            list-style: none;
+            text-align: left;
+            max-height: 380px;
+            overflow-y: auto;
+            margin-top: 10px;
+            display: none;
+        }
+        #resultsList::-webkit-scrollbar { width: 6px; }
+        #resultsList::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            margin-bottom: 10px;
+            transition: all 0.2s ease;
+            animation: slideIn 0.2s ease;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .result-item:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(26, 115, 232, 0.1);
+            transform: translateY(-2px);
+        }
+        .name-text {
+            font-weight: 600;
+            color: var(--text);
+            font-size: 16px;
+            flex: 1;
+            text-align: left;
+            padding-right: 10px;
+        }
+        .download-btn {
+            background: var(--success);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+            white-space: nowrap;
+            border: none;
+            cursor: pointer;
+        }
+        .download-btn:hover {
+            background: #1e7e34;
+            transform: scale(1.03);
+        }
+        .no-result {
+            padding: 25px;
+            color: #94a3b8;
+            font-size: 14px;
+            text-align: center;
+        }
+        
+        /* Footer */
+        footer {
+            margin-top: 35px;
+            font-size: 11px;
+            color: #cbd5e1;
+        }
+        
+        /* Status Badge */
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #dbeafe;
+            color: #1e40af;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-top: 15px;
+            font-weight: 500;
+        }
+        
+        /* Responsive */
+        @media (max-width: 480px) {
+            .container { padding: 30px 20px; }
+            h1 { font-size: 20px; }
+            .result-item { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .download-btn { width: 100%; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="logo">🎓</div>
+    <h1>ระบบค้นหาเกียรติบัตรออนไลน์</h1>
+    <p class="subtitle">พิมพ์ชื่อ-นามสกุลของคุณ เพื่อค้นหาและดาวน์โหลดไฟล์เกียรติบัตร</p>
+    
+    <div class="search-box">
+        <input 
+            type="text" 
+            id="searchInput" 
+            placeholder="🔍 พิมพ์ชื่อเพื่อค้นหา..." 
+            oninput="handleSearch()"
+            autocomplete="off"
+        >
+    </div>
+    
+    <span class="status">✅ ระบบพร้อมใช้งาน</span>
+    
+    <ul id="resultsList"></ul>
+    
+    <footer>
+        &copy; 2026 Certificate Search System • ใช้งานฟรีบน GitHub Pages
+    </footer>
+</div>
+
+<script>
+    /**
+     * 🗄️ ฐานข้อมูลรายชื่อเกียรติบัตร
+     * =================================
+     * วิธีเพิ่มรายชื่อใหม่:
+     * 1. อัปโหลดไฟล์ PDF เข้าโฟลเดอร์ /pdfs บน GitHub
+     * 2. เพิ่มบรรทัดใหม่ด้านล่างนี้ โดยแก้ "name" และ "file" ให้ตรงกับไฟล์จริง
+     * 3. กด Commit changes
+     * 
+     * ⚠️ ข้อควรระวัง:
+     * - ชื่อไฟล์ใน "file" ต้องลงท้ายด้วย .pdf เท่านั้น
+     * - ตัวพิมพ์เล็ก-ใหญ่ ต้องตรงกับไฟล์จริงบน GitHub เป๊ะๆ
+     * - ห้ามมีช่องว่างหรืออักขระพิเศษในชื่อไฟล์ (ใช้ - หรือ _ แทน)
+     */
+    const certificateData =     /**
+     * ฐานข้อมูลรายชื่อเกียรติบัตร (แก้ไขให้ตรงกับไฟล์จริงในโฟลเดอร์ pdfs แล้ว)
+     */
+    const certificateData = [
+        { "name": "BJ Manarea", "file": "BJ Manarea.pdf" },
+        { "name": "Jovic Monarea", "file": "Jovic Monarea.pdf" },
+        { "name": "Jovienal Mapinogos", "file": "Jovienal Mapinogos.pdf" },
+        { "name": "Julius Atol", "file": "Julius Atol.pdf" },
+        { "name": "Junilo Catubig", "file": "Junilo Catubig.pdf" },
+        { "name": "King Jhon Bucong", "file": "King Jhon Bucong.pdf" },
+        { "name": "Name", "file": "Name.pdf" },
+        { "name": "Peter Ocdenaria", "file": "Peter Ocdenaria.pdf" },
+        { "name": "Tito Pondoyo", "file": "Tito Pondoyo.pdf" }
+    ];
+    /**
+     * 🔄 ฟังก์ชันค้นหาแบบเรียลไทม์
+     */
+    function handleSearch() {
+        const input = document.getElementById('searchInput').value.trim().toLowerCase();
+        const resultsList = document.getElementById('resultsList');
+        
+        // ล้างผลลัพธ์เก่า
+        resultsList.innerHTML = '';
+        
+        // ถ้าช่องค้นหาว่าง -> ซ่อนรายการ
+        if (input === '') {
+            resultsList.style.display = 'none';
+            return;
+        }
+
+        // 🔍 ค้นหาชื่อที่ตรงกัน (รองรับภาษาไทย)
+        const matched = certificateData.filter(item => 
+            item.name.toLowerCase().includes(input)
+        );
+
+        // แสดงผลลัพธ์
+        if (matched.length > 0) {
+            resultsList.style.display = 'block';
+            
+            matched.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'result-item';
+                
+                // 🎯 สร้างลิงก์ดาวน์โหลด (สำคัญ: ต้องมี pdfs/ นำหน้า)
+                // ใช้ชื่อไฟล์ตรงๆ จากข้อมูล (GitHub Pages ใช้ relative path)
+                const pdfPath = `pdfs/${item.file}`;
+                
+                li.innerHTML = `
+                    <span class="name-text">${escapeHtml(item.name)}</span>
+                    <a href="${pdfPath}" class="download-btn" target="_blank" download>
+                        📥 ดาวน์โหลด PDF
+                    </a>
+                `;
+                resultsList.appendChild(li);
+            });
+            
+        } else {
+            // ไม่พบผลลัพธ์
+            resultsList.style.display = 'block';
+            resultsList.innerHTML = `
+                <li class="no-result">
+                    ❌ ไม่พบรายชื่อ "<strong>${escapeHtml(input)}</strong>" ในระบบ<br>
+                    <small style="color:#cbd5e1">ตรวจสอบการสะกดชื่อหรือติดต่อผู้ดูแลระบบ</small>
+                </li>
+            `;
+        }
+    }
+
+    /**
+     * 🛡️ ฟังก์ชันป้องกัน XSS (ความปลอดภัย)
+     */
+    function escapeHtml(text) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, m => map[m]);
+    }
+
+    /**
+     * 💡 ทิป: กด Enter เพื่อล้างช่องค้นหา
+     */
+    document.getElementById('searchInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            this.value = '';
+            document.getElementById('resultsList').style.display = 'none';
+            this.focus();
+        }
+    });
+
+    /**
+     * 🪄 โหลดหน้าเว็บเสร็จ -> โฟกัสที่ช่องค้นหาอัตโนมัติ
+     */
+    window.addEventListener('load', () => {
+        document.getElementById('searchInput').focus();
+        console.log('✅ Certificate Search System Loaded');
+        console.log('📊 โหลดรายชื่อทั้งหมด:', certificateData.length, 'คน');
+    });
+</script>
+
+</body>
+</html>
